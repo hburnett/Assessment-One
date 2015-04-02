@@ -46,8 +46,8 @@ Shader::Shader( GLFWwindow *window )
 	m_flyCamera->SetInputWindow(window);
 	m_flyCamera->SetLookAt(vec3(0,20,10), vec3(0), vec3(0,1,0));
 	m_flyCamera->SetPerspective( 3.14159f / 4.0f, 16.f/9.f, 0.1f, 1500.f ); 
-	m_flyCamera->SetFlySpeed(20.0f);
-	m_flyCamera->SetRotSpeed(10.0f);
+	m_flyCamera->SetFlySpeed(50.0f);
+	m_flyCamera->SetRotSpeed(0.1f);
 	m_selectedParticleEmitter = 0;
 	
 	
@@ -56,20 +56,20 @@ Shader::Shader( GLFWwindow *window )
 	CreateShaders();
 
 
-	//m_gpuParticleEmitters.push_back(new GPUParticleEmitter("resources/shaders/gpuParticleUpdate.vert"));
-	//m_gpuParticleEmitters[0]->Initialise( 100000, 1.1f, 5.0f, 20.5f, 50.1f, 0.005f, 0.0005f, 
-	//	glm::vec4(1.0f, 1.0f, 1.0f, 1), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 
-	//	glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), "resources/images/ptcle.png", m_TweakBar);
+	m_gpuParticleEmitters.push_back(new GPUParticleEmitter("resources/shaders/gpuParticleUpdate.vert"));
+	m_gpuParticleEmitters[0]->Initialise( 100000, 1.1f, 5.0f, 20.5f, 50.1f, 0.005f, 0.0005f, 
+		glm::vec4(1.0f, 1.0f, 1.0f, 1), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 
+		glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), "resources/images/ptcle.png", m_TweakBar);
 
 	m_skybox.push_back(new Skybox("resources/skybox/test/"));
 	//m_grids.push_back(new Grid(m_TweakBar, m_baseProgramID));
 	//m_grids[0]->GenerateGrid();
 
-	m_terrain.push_back(new Perlin(256, m_unlitTexturedProgramID));
+	m_terrain.push_back(new Perlin(256, m_unlitTexturedProgramID, 8.0f, 0.3f));
 	
 	
 	//m_gpuParticleEmitters.push_back(new GPUParticleEmitter("resources/shaders/gpuParticleUpdate.vert"));
-	//m_gpuParticleEmitters[1]->Initialise( 100000, 1.1f, 5.0f, 20.5f, 50.1f, 0.005f, 0.0005f, 
+	//m_gpuParticleEmitters[0]->Initialise( 100000, 1.1f, 5.0f, 20.5f, 50.1f, 0.005f, 0.0005f, 
 	//	glm::vec4(1.0f, 1.0f, 1.0f, 1), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 
 	//	glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), "resources/images/ptcle.png", m_TweakBar);
 	
@@ -101,6 +101,8 @@ void Shader::Update( float dT )
 {		
 	static bool wireframe = false;
 	static bool toggleKeyDown = false;
+	static bool toggleGDown = false;
+	static bool toggleRDown = false;
 
 	for (unsigned int i = 0; i < m_fbxUntexturedObjects.size(); i++)
 		m_fbxUntexturedObjects[i]->Update(dT);
@@ -108,14 +110,39 @@ void Shader::Update( float dT )
 	for (unsigned int i = 0; i < m_fbxTexturedObjects.size(); i++)
 		m_fbxTexturedObjects[i]->Update(dT);
 
-	if (glfwGetKey(m_window, GLFW_KEY_G) == GLFW_PRESS)
+	if (glfwGetKey(m_window, GLFW_KEY_G) == GLFW_PRESS && !toggleGDown)
 	{
-		for (unsigned int i = 0; i < m_grids.size(); i++)
-			m_grids[i]->GenerateGrid();
+		for (unsigned int i = 0; i < m_terrain.size(); i++)
+		{
+			float scale = (1.0f / m_terrain[i]->m_dimensions) * 3;
+			int octaves = 6;
+			m_terrain[i]->GeneratePerlinNoise(octaves, scale, m_terrain[i]->m_amplitude, m_terrain[i]->m_persistence);
+		}
 
-		int i = 0;
-		std::cin >> i;
+		toggleGDown = true;
 	}	
+
+	if (glfwGetKey(m_window, GLFW_KEY_G) != GLFW_PRESS)
+	{
+		toggleGDown = false;
+	}
+
+	if (glfwGetKey(m_window, GLFW_KEY_R) == GLFW_PRESS && !toggleRDown)
+	{
+		ReloadShaders();
+
+		for (unsigned int i = 0; i < m_terrain.size(); i++)
+		{
+			m_terrain[i]->ReloadShader(m_unlitTexturedProgramID);
+		}
+
+		toggleRDown = true;
+	}	
+
+	if (glfwGetKey(m_window, GLFW_KEY_R) != GLFW_PRESS)
+	{
+		toggleRDown = false;
+	}
 	
 	if (glfwGetKey(m_window, GLFW_KEY_T) != GLFW_PRESS)
 		toggleKeyDown = false;
@@ -180,6 +207,18 @@ void Shader::Update( float dT )
 		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 
 }
+
+void Shader::ReloadShaders()
+{
+	 glDeleteProgram(m_texturedProgramID);
+	 glDeleteProgram(m_animatedProgramID);
+	 glDeleteProgram(m_cpuParticleProgramID);
+	 glDeleteProgram(m_baseProgramID);
+	 glDeleteProgram(m_unlitTexturedProgramID);
+
+	 CreateShaders();
+}
+
 
 void Shader::Draw( float dT )
 {	

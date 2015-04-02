@@ -39,6 +39,8 @@ public:
 	TweakBar* GetTweakBar() { return m_TweakBar; }
 
 	unsigned int LoadShader(unsigned int type, const char* path);
+
+	void ReloadShaders();
 	
 private:
 

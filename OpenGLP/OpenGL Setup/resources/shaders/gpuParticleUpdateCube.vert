@@ -46,9 +46,9 @@
 			velocity.z = 0;				
 			
 			position = emitterPosition;	
-			position.x = emitterPosition.x + rand(seed++, 2) - 1;
-			position.y = emitterPosition.y + rand(seed++, 2) - 1;
-			position.z = emitterPosition.z + rand(seed++, 2) - 1;
+			position.x = emitterPosition.x + rand(seed++, 200) - 100;
+			position.y = emitterPosition.y + rand(seed++, 200) - 100;
+			position.z = emitterPosition.z + rand(seed++, 200) - 100;
 			
 			lifetime = 0;
 			lifespan = rand(seed++, lifeMax - lifeMin) + lifeMin;

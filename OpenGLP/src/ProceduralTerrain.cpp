@@ -1,51 +1,33 @@
 #include <ProceduralTerrain.h>
+#include <stb_image.h>
+#include <random>
 
-Perlin::Perlin(unsigned int dimensions, unsigned int program)
+Perlin::Perlin(unsigned int dimensions, unsigned int program, float amplitude, float persistence)
 {
 	m_dimensions = dimensions;
 	m_programID = program;
-	int octaves = 12;
+	m_amplitude = amplitude;
+	m_persistence = persistence;
+	unsigned int octaves = 6;
 
+	srand(time(NULL));
 
 	GenerateGrid();
 
-	float *perlin_data = new float[m_dimensions * m_dimensions];
+	m_water = LoadTexture("resources/textures/procedural/water.jpg");
+	m_sand = LoadTexture("resources/textures/procedural/sand.jpg");
+	m_grass = LoadTexture("resources/textures/procedural/grass.jpg");
+	m_snow = LoadTexture("resources/textures/procedural/snow.jpg");	
+
 
 	float scale = (1.0f / m_dimensions) * 3;
-	float HI = 0.55f;
-	float LO = 0.456f;
 
-	for (unsigned int x = 0; x < m_dimensions; ++x)
-	{
-		for (unsigned int y = 0; y < m_dimensions; ++y)
-		{
-			float amplitude = 20.0f;
-			float persistence = 0.3f;
-			perlin_data[y * m_dimensions + x] = 0;
+	GeneratePerlinNoise(octaves, scale, m_amplitude, m_persistence);
 
-			for (int o = 0; o < octaves; ++o)
-			{
+	
+	
 
-				float freq = powf(2, (float)o);
-				float r3 = LO + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(HI-LO)));
-				float perlin_sample = glm::perlin(glm::vec2((float)x, (float)y) * scale * freq) * 0.5f + 0.5f;
-				
-				perlin_data[y * m_dimensions + x] += perlin_sample * amplitude - (amplitude / 2);
-				amplitude *= persistence;
-			}
-		}
-	}
-
-	glGenTextures(1, &m_perlinTexture);
-	glBindTexture(GL_TEXTURE_2D, m_perlinTexture);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, m_dimensions, m_dimensions, 0, GL_RED, GL_FLOAT, perlin_data);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	
 }
 
 void Perlin::GenerateGrid() 
@@ -121,16 +103,97 @@ void Perlin::GenerateGrid()
 	delete[] auiIndices;
 }
 
+void Perlin::GeneratePerlinNoise(int octaves, float scale, float ampl, float pers)
+{	
+	float HI = 4294967295;
+	float LO = 0;	
+	unsigned int seed = LO + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(HI-LO)));
+
+	float *perlin_data = new float[m_dimensions * m_dimensions];
+
+	for (unsigned int x = 0; x < m_dimensions; ++x)
+	{
+		for (unsigned int y = 0; y < m_dimensions; ++y)
+		{
+			float amplitude = ampl;
+			float persistence = pers;
+			perlin_data[y * m_dimensions + x] = 0;
+
+			for (int o = 0; o < octaves; ++o)
+			{
+
+				float freq = powf(2, (float)o);
+				float perlin_sample = glm::perlin(glm::vec3((float)x, (float)y, seed) * scale * freq) * 0.5f + 0.5f;
+				
+				perlin_data[y * m_dimensions + x] += perlin_sample * amplitude;
+				amplitude *= persistence;
+			}
+		}
+	}
+
+	glGenTextures(1, &m_perlinTexture);
+	glBindTexture(GL_TEXTURE_2D, m_perlinTexture);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, m_dimensions, m_dimensions, 0, GL_RED, GL_FLOAT, perlin_data);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+}
+
+
+GLuint Perlin::LoadTexture(char * filename)
+{
+	GLuint tex = 0;
+	int imageWidth = 0, imageHeight = 0, imageFormat = 0;
+	unsigned char* data = stbi_load(filename, &imageWidth, &imageHeight, &imageFormat, STBI_default);
+
+	glGenTextures(1, &tex); 
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	stbi_image_free(data);		
+
+	return tex;
+}
+
 void Perlin::Draw(FlyCamera *camera)
 {
 	glUseProgram(m_programID);
 	
 	glActiveTexture(GL_TEXTURE0); 
 	glBindTexture(GL_TEXTURE_2D, m_perlinTexture);
+	
+	glActiveTexture(GL_TEXTURE1); 
+	glBindTexture(GL_TEXTURE_2D, m_water);
+	
+	glActiveTexture(GL_TEXTURE2); 
+	glBindTexture(GL_TEXTURE_2D, m_sand);
+	
+	glActiveTexture(GL_TEXTURE3); 
+	glBindTexture(GL_TEXTURE_2D, m_grass);
+	
+	glActiveTexture(GL_TEXTURE4); 
+	glBindTexture(GL_TEXTURE_2D, m_snow);
 
 	unsigned int location = glGetUniformLocation(m_programID, "perlin_texture");
 	glUniform1i(location, 0);
+
+	location = glGetUniformLocation(m_programID, "waterTexture");
+	glUniform1i(location, 1);
 	
+	location = glGetUniformLocation(m_programID, "sandTexture");
+	glUniform1i(location, 2);
+	
+	location = glGetUniformLocation(m_programID, "grassTexture");
+	glUniform1i(location, 3);
+	
+	location = glGetUniformLocation(m_programID, "snowTexture");
+	glUniform1i(location, 4);
 
 	location = glGetUniformLocation(m_programID,"ProjectionView");
 	glUniformMatrix4fv(location, 1, false,	glm::value_ptr(camera->GetProjectionView()));

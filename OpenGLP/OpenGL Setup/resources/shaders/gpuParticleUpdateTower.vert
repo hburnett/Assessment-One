@@ -42,13 +42,13 @@
 		{
 			uint seed = uint(time * 1000.0) + uint(gl_VertexID);
 			velocity.x = rand(seed++, 2) - 1;
-			velocity.y = rand(seed++, 20) - 10;
+			velocity.y = abs(rand(seed++, 5) - 2.5f) * -1;
 			velocity.z = rand(seed++, 2) - 1;	
 			
 			position = emitterPosition;		
-			position.x = rand(seed++, 2) - 1;			
-			position.y = rand(seed++, 4) - 2;			
-			position.z = rand(seed++, 2) - 1;	
+			position.x = 128 + rand(seed++, 2) - 1;			
+			position.y = 64 + rand(seed++, 4) - 2;			
+			position.z = 128 + rand(seed++, 2) - 1;	
 			
 			
 			lifetime = 0;

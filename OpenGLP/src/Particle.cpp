@@ -215,6 +215,7 @@ void GPUParticleEmitter::LoadTexture(char * filename)
 void GPUParticleEmitter::ChangeUpdateShader(char* updateShaderFilename)
 {
 	m_updateShaderFilename = updateShaderFilename;
+	glDeleteProgram(m_updateShader);
 	CreateUpdateShader();
 }
 
