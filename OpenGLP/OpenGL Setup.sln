@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGL Setup", "OpenGL Setup\OpenGL Setup.vcxproj", "{340CD1EB-90EF-40DD-AF98-15F6D52D5292}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{340CD1EB-90EF-40DD-AF98-15F6D52D5292}.Debug|Win32.ActiveCfg = Debug|Win32
+		{340CD1EB-90EF-40DD-AF98-15F6D52D5292}.Debug|Win32.Build.0 = Debug|Win32
+		{340CD1EB-90EF-40DD-AF98-15F6D52D5292}.Release|Win32.ActiveCfg = Release|Win32
+		{340CD1EB-90EF-40DD-AF98-15F6D52D5292}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
