@@ -28,7 +28,17 @@
 	void main() 
 	{
 		
+		uint seed = uint(time * 1000.0) + uint(gl_VertexID);
+		
 		velocity = Velocity;
+		
+		//velocity.x = (pow(1.1f, velocity.x)) - cos(time);
+		velocity.y = 0.5f;
+		//velocity.z = (pow(1.1f, velocity.z)) + cos(time);
+		velocity.x = 0;
+		velocity.z = 0;
+		
+		velocity *= 2;
 		
 		position = Position + velocity * deltaTime;
 		lifetime = Lifetime + deltaTime;
@@ -39,17 +49,22 @@
 		// emit a new particle as soon as it dies
 		if (lifetime > lifespan) 
 		{
-			uint seed = uint(time * 1000.0) + uint(gl_VertexID);
-			
 			velocity.x = rand(seed++, 2) - 1;
-			velocity.y = rand(seed++, 2) - 1;
-			//velocity.y = abs(velocity.y) * -1;
-			velocity.z = rand(seed++, 2) - 1;		
+			velocity.y = rand(seed++, 20) - 10;
+			velocity.z = rand(seed++, 2) - 1;	
 			velocity = normalize(velocity);
-			velocity *= 2;
+			
+			float ranAngle = rand(seed++, 6.28f);
 			
 			position = emitterPosition;	
-			position.y += 86.4f;
+			position.x += sin(ranAngle) * 20;
+			position.z += cos(ranAngle) * 20;
+			position.x += rand(seed++, 1) - 0.5f;			
+			position.y += rand(seed++, 1) - 0.5f;	
+			position.y += 121;	
+			position.z += rand(seed++, 1) - 0.5f;	
+			
+			
 			lifetime = 0;
 			lifespan = rand(seed++, lifeMax - lifeMin) + lifeMin;
 		}

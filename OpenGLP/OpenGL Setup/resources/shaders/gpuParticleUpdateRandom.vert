@@ -33,7 +33,7 @@
 		velocity = Velocity;
 		
 		//velocity.x = (pow(1.1f, velocity.x)) - cos(time);
-		velocity.y = 0.5f;
+		velocity.y = 0.5f * 2;
 		//velocity.z = (pow(1.1f, velocity.z)) + cos(time);
 		velocity.x = 0;
 		velocity.z = 0;
@@ -48,18 +48,16 @@
 		
 		// emit a new particle as soon as it dies
 		if (lifetime > lifespan) 
-		{
-			velocity.x = rand(seed++, 2) - 1;
-			velocity.y = rand(seed++, 20) - 10;
-			velocity.z = rand(seed++, 2) - 1;	
-			velocity = normalize(velocity);
+		{			
+			float ranAngle = rand(seed++, 6.28f);
 			
 			position = emitterPosition;	
-			position.x += sin(time) * 20;
-			position.z += cos(time) * 20;
-			position.x += rand(seed++, 1) - 0.5f;			
-			position.y += rand(seed++, 1) - 0.5f;			
-			position.z += rand(seed++, 1) - 0.5f;	
+			position.x += sin(ranAngle) * 17;
+			position.z += cos(ranAngle) * 17;
+			position.x += rand(seed++, 4) - 2;			
+			position.y += rand(seed++, 1) - 0.5f;	
+			position.y += 121.8f;	
+			position.z += rand(seed++, 4) - 2;	
 			
 			
 			lifetime = 0;

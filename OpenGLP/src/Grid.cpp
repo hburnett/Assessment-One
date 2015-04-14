@@ -8,8 +8,8 @@ Grid::Grid(TweakBar *tweaks, unsigned int programID)
 
 void Grid::GenerateGrid() 
 {
-	unsigned int rows = m_tweaks->rows;
-	unsigned int cols = m_tweaks->cols;
+	unsigned int rows = 64;
+	unsigned int cols = 64;
 
 	Vertex* aoVertices = new Vertex[ rows * cols ];
 	

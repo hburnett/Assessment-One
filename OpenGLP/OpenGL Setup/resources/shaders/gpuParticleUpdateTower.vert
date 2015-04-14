@@ -41,14 +41,12 @@
 		if (lifetime > lifespan) 
 		{
 			uint seed = uint(time * 1000.0) + uint(gl_VertexID);
-			velocity.x = rand(seed++, 2) - 1;
-			velocity.y = abs(rand(seed++, 5) - 2.5f) * -1;
-			velocity.z = rand(seed++, 2) - 1;	
+			velocity.x = rand(seed++, 4) - 2;
+			velocity.y = abs(rand(seed++, 8) - 4) * -1;
+			velocity.z = rand(seed++, 4) - 2;	
 			
 			position = emitterPosition;		
-			position.x = 128 + rand(seed++, 2) - 1;			
-			position.y = 64 + rand(seed++, 4) - 2;			
-			position.z = 128 + rand(seed++, 2) - 1;	
+			position.y += 85;
 			
 			
 			lifetime = 0;

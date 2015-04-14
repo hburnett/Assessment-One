@@ -53,23 +53,14 @@ public:
 
 	void Draw();
 
+	void SetSeed(unsigned int s);
 	
 	glm::vec4 m_clearColour;
 	glm::vec3 m_lightPos;
 	glm::vec3 m_lightColour;
 	float m_specPower;
 
-	float minLife;
-	float maxLife;
-	float minVel;
-	float maxVel;
-	float startSize;
-	float endSize;
-	unsigned int rows;
-	unsigned int cols;
-	glm::vec4 startCol;
-	glm::vec4 endCol;
-	glm::vec4 midCol;
+	unsigned int m_seed;
 
 
 private:

@@ -70,15 +70,15 @@ void GPUParticleEmitter::Initialise(unsigned int maxParticles,
 	m_lifespanMax = maxLife;
 	m_maxParticles = maxParticles;
 	
-	m_lifespanMin	= m_tweaks->minLife;
-	m_lifespanMax	= m_tweaks->maxLife;
-	m_velocityMin	= m_tweaks->minVel;
-	m_velocityMax	= m_tweaks->maxVel;
-	m_startSize		= m_tweaks->startSize;
-	m_endSize		= m_tweaks->endSize;
-	m_startColour	= m_tweaks->startCol;
-	m_endColour		= m_tweaks->endCol;
-	m_midColour		= m_tweaks->midCol;
+	//m_lifespanMin	= m_tweaks->minLife;
+	//m_lifespanMax	= m_tweaks->maxLife;
+	//m_velocityMin	= m_tweaks->minVel;
+	//m_velocityMax	= m_tweaks->maxVel;
+	//m_startSize		= m_tweaks->startSize;
+	//m_endSize		= m_tweaks->endSize;
+	//m_startColour	= m_tweaks->startCol;
+	//m_endColour		= m_tweaks->endCol;
+	//m_midColour		= m_tweaks->midCol;
 
 	m_particles = new GPUParticle[maxParticles];
 
@@ -91,28 +91,28 @@ void GPUParticleEmitter::Initialise(unsigned int maxParticles,
 
 void GPUParticleEmitter::UpdateTweakBarVariables()
 {	
-	m_lifespanMin	= m_tweaks->minLife;
-	m_lifespanMax	= m_tweaks->maxLife;
-	m_velocityMin	= m_tweaks->minVel;
-	m_velocityMax	= m_tweaks->maxVel;
-	m_startSize		= m_tweaks->startSize;
-	m_endSize		= m_tweaks->endSize;
-	m_startColour	= m_tweaks->startCol;
-	m_endColour		= m_tweaks->endCol;
-	m_midColour		= m_tweaks->midCol;
+	//m_lifespanMin	= m_tweaks->minLife;
+	//m_lifespanMax	= m_tweaks->maxLife;
+	//m_velocityMin	= m_tweaks->minVel;
+	//m_velocityMax	= m_tweaks->maxVel;
+	//m_startSize		= m_tweaks->startSize;
+	//m_endSize		= m_tweaks->endSize;
+	//m_startColour	= m_tweaks->startCol;
+	//m_endColour		= m_tweaks->endCol;
+	//m_midColour		= m_tweaks->midCol;
 }
 
 void GPUParticleEmitter::SetTweakBarToCurrent ()
 {
-	m_tweaks->minLife	=	m_lifespanMin;	
-	m_tweaks->maxLife	=	m_lifespanMax;	
-	m_tweaks->minVel	=	m_velocityMin;	
-	m_tweaks->maxVel	=	m_velocityMax;	
-	m_tweaks->startSize	=	m_startSize;
-	m_tweaks->endSize	=	m_endSize;
-	m_tweaks->startCol	=	m_startColour;	
-	m_tweaks->endCol	=	m_endColour;
-	m_tweaks->midCol	=	m_midColour;	
+	//m_tweaks->minLife	=	m_lifespanMin;	
+	//m_tweaks->maxLife	=	m_lifespanMax;	
+	//m_tweaks->minVel	=	m_velocityMin;	
+	//m_tweaks->maxVel	=	m_velocityMax;	
+	//m_tweaks->startSize	=	m_startSize;
+	//m_tweaks->endSize	=	m_endSize;
+	//m_tweaks->startCol	=	m_startColour;	
+	//m_tweaks->endCol	=	m_endColour;
+	//m_tweaks->midCol	=	m_midColour;	
 }
 
 void GPUParticleEmitter::CreateBuffers()
@@ -205,7 +205,12 @@ void GPUParticleEmitter::LoadTexture(char * filename)
 
 	glGenTextures(1, &m_texture); 
 	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	if (imageFormat == 4)
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+	if (imageFormat == 3)
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
@@ -251,7 +256,7 @@ void GPUParticleEmitter::Draw(float time, const glm::mat4& a_cameraTransform, co
 	glUseProgram(m_updateShader);
 
 	
-	glDisable(GL_DEPTH_TEST);
+	//glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

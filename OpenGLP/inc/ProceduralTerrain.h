@@ -14,11 +14,13 @@
 #include <FlyCamera.h>
 #include <Grid.h>
 #include <string>
+#include <TweakBar.h>
 
 struct ProceduralVertex 
 {
 	glm::vec4 position;
 	glm::vec2 texCoords;
+	glm::vec4 normal;
 };
 class Perlin
 {
@@ -38,20 +40,28 @@ public:
 
 	void ReloadShader(unsigned int program)		{ m_programID = program; }
 
+	void SetTweakBar(TweakBar * tweaks);	
+
 	void GenerateGrid();
 
 	unsigned int m_dimensions;
 	float m_amplitude, m_persistence;
 	
+	unsigned int m_seed;
+
 private:
 	
 	unsigned int m_VAO, m_VBO, m_IBO, m_programID;
 	unsigned int m_vertices, m_indexCount;
 
-
+	unsigned int* auiIndices;
+	ProceduralVertex* aoVertices;
 
 	GLuint m_texture, m_perlinTexture;
 	GLuint m_water, m_sand, m_grass, m_snow;
+
+	TweakBar * m_tweaks;
+
 };
 
 

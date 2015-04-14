@@ -8,10 +8,13 @@ Perlin::Perlin(unsigned int dimensions, unsigned int program, float amplitude, f
 	m_programID = program;
 	m_amplitude = amplitude;
 	m_persistence = persistence;
-	unsigned int octaves = 6;
 
 	srand(time(NULL));
 
+	float scale = (1.0f / m_dimensions) * 3;
+	unsigned int octaves = 6;
+	
+	GeneratePerlinNoise(octaves, scale, m_amplitude, m_persistence);
 	GenerateGrid();
 
 	m_water = LoadTexture("resources/textures/procedural/water.jpg");
@@ -19,15 +22,16 @@ Perlin::Perlin(unsigned int dimensions, unsigned int program, float amplitude, f
 	m_grass = LoadTexture("resources/textures/procedural/grass.jpg");
 	m_snow = LoadTexture("resources/textures/procedural/snow.jpg");	
 
+	float HI = 32000;
+	float LO = 0;	
+	unsigned int seed = LO + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(HI-LO)));
+	m_seed = seed;
+}
 
-	float scale = (1.0f / m_dimensions) * 3;
-
-	GeneratePerlinNoise(octaves, scale, m_amplitude, m_persistence);
-
-	
-	
-
-	
+void Perlin::SetTweakBar(TweakBar * tweaks)
+{ 
+	m_tweaks = tweaks;
+	m_tweaks->SetSeed(m_seed);
 }
 
 void Perlin::GenerateGrid() 
@@ -36,7 +40,7 @@ void Perlin::GenerateGrid()
 	unsigned int cols = m_dimensions;
 
 
-	ProceduralVertex* aoVertices = new ProceduralVertex[ rows * cols ];
+	aoVertices = new ProceduralVertex[ rows * cols ];
 	
 	for ( unsigned int r = 0 ; r < rows ; ++r ) 
 	{
@@ -47,11 +51,13 @@ void Perlin::GenerateGrid()
 
 			// colour
 			aoVertices[ r * cols + c ].texCoords = glm::vec2((float)c / cols, (float)r / rows);
+			aoVertices[ r * cols + c ].normal = glm::vec4(1);
 		}
 	}
+	
 
 	// defining index count based off quad count (2 triangles per quad)
-	unsigned int* auiIndices = new unsigned int[ (rows - 1) * (cols - 1) * 6 ];
+	auiIndices = new unsigned int[ (rows - 1) * (cols - 1) * 6 ];
 	unsigned int index = 0;
 	for ( unsigned int r = 0 ; r < (rows - 1) ; ++r ) 
 	{
@@ -87,8 +93,10 @@ void Perlin::GenerateGrid()
 	// describe how the vertices are setup so they can be sent to the shader
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(ProceduralVertex), 0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ProceduralVertex), (void*)(sizeof(glm::vec4)));
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ProceduralVertex), (void*)((sizeof(glm::vec4)) + (sizeof(glm::vec2))));
 
 	// m_VAO hold all our ARRAY_BUFFER and ARRAY_ELEMENT_BUFFER settings
 	// so just rebind it later before using glDrawElements
@@ -99,18 +107,17 @@ void Perlin::GenerateGrid()
 
 	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
-	delete[] aoVertices;
-	delete[] auiIndices;
+	//delete[] aoVertices;
+	//delete[] auiIndices;
 }
 
 void Perlin::GeneratePerlinNoise(int octaves, float scale, float ampl, float pers)
 {	
-	float HI = 4294967295;
-	float LO = 0;	
-	unsigned int seed = LO + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(HI-LO)));
 
+	// List of vertices
 	float *perlin_data = new float[m_dimensions * m_dimensions];
-
+	unsigned int size = 0;
+	// Calculating Vertex positions
 	for (unsigned int x = 0; x < m_dimensions; ++x)
 	{
 		for (unsigned int y = 0; y < m_dimensions; ++y)
@@ -123,14 +130,17 @@ void Perlin::GeneratePerlinNoise(int octaves, float scale, float ampl, float per
 			{
 
 				float freq = powf(2, (float)o);
-				float perlin_sample = glm::perlin(glm::vec3((float)x, (float)y, seed) * scale * freq) * 0.5f + 0.5f;
+				float perlin_sample = glm::perlin(glm::vec3((float)x, (float)y, m_seed) * scale * freq) * 0.5f + 0.5f;
 				
 				perlin_data[y * m_dimensions + x] += perlin_sample * amplitude;
 				amplitude *= persistence;
+				
 			}
+						
+			size++;
 		}
 	}
-
+	
 	glGenTextures(1, &m_perlinTexture);
 	glBindTexture(GL_TEXTURE_2D, m_perlinTexture);
 
@@ -183,6 +193,7 @@ void Perlin::Draw(FlyCamera *camera)
 	unsigned int location = glGetUniformLocation(m_programID, "perlin_texture");
 	glUniform1i(location, 0);
 
+
 	location = glGetUniformLocation(m_programID, "waterTexture");
 	glUniform1i(location, 1);
 	
@@ -194,6 +205,29 @@ void Perlin::Draw(FlyCamera *camera)
 	
 	location = glGetUniformLocation(m_programID, "snowTexture");
 	glUniform1i(location, 4);
+	
+	location = glGetUniformLocation(m_programID, "dimensions");
+	glUniform1f(location, m_dimensions);
+
+
+	
+	unsigned int projectionViewUniform = glGetUniformLocation(m_programID,"ProjectionView");
+	unsigned int lightPosUniform = glGetUniformLocation(m_programID, "LightPos");
+	unsigned int lightColourUniform = glGetUniformLocation(m_programID, "LightColour");
+	unsigned int cameraPosUniform = glGetUniformLocation(m_programID, "CameraPos");
+	unsigned int specPow = glGetUniformLocation(m_programID, "SpecPow");
+
+	glm::vec3 camPos = camera->GetPosition();
+	glm::vec3 clr = m_tweaks->m_lightColour;
+	glm::vec3 pos = m_tweaks->m_lightPos;
+
+	glUniformMatrix4fv(projectionViewUniform, 1, false, glm::value_ptr(camera->GetProjectionView()));
+	glUniform3f(lightPosUniform, pos.x, pos.y, pos.z);
+	glUniform3f(lightColourUniform, clr.r, clr.g, clr.b);
+	glUniform3f(cameraPosUniform, camPos.x, camPos.y, camPos.z);
+	glUniform1f(specPow, m_tweaks->m_specPower);
+
+
 
 	location = glGetUniformLocation(m_programID,"ProjectionView");
 	glUniformMatrix4fv(location, 1, false,	glm::value_ptr(camera->GetProjectionView()));

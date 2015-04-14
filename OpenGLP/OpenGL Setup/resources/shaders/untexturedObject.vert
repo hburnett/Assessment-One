@@ -10,5 +10,8 @@ uniform mat4 ProjectionView;
 
 void main() 
 { 
-	vPosition = Position;  vColour = Colour;  gl_Position = ProjectionView * Position;
+	Position.y += 100;
+	vPosition = Position; 
+	vColour = Colour;  
+	gl_Position = ProjectionView * Position;
 };

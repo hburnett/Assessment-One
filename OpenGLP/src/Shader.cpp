@@ -45,8 +45,8 @@ Shader::Shader( GLFWwindow *window )
 	m_flyCamera = new FlyCamera();
 	m_flyCamera->SetInputWindow(window);
 	m_flyCamera->SetLookAt(vec3(0,20,10), vec3(0), vec3(0,1,0));
-	m_flyCamera->SetPerspective( 3.14159f / 4.0f, 16.f/9.f, 0.1f, 1500.f ); 
-	m_flyCamera->SetFlySpeed(50.0f);
+	m_flyCamera->SetPerspective( 3.14159f / 4.0f, 16.f/9.f, 0.1f, 4500.f ); 
+	m_flyCamera->SetFlySpeed(150.0f);
 	m_flyCamera->SetRotSpeed(0.1f);
 	m_selectedParticleEmitter = 0;
 	
@@ -55,38 +55,41 @@ Shader::Shader( GLFWwindow *window )
 	
 	CreateShaders();
 
-
-	m_gpuParticleEmitters.push_back(new GPUParticleEmitter("resources/shaders/gpuParticleUpdate.vert"));
-	m_gpuParticleEmitters[0]->Initialise( 100000, 1.1f, 5.0f, 20.5f, 50.1f, 0.005f, 0.0005f, 
-		glm::vec4(1.0f, 1.0f, 1.0f, 1), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 
-		glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), "resources/images/ptcle.png", m_TweakBar);
-
 	m_skybox.push_back(new Skybox("resources/skybox/test/"));
 	//m_grids.push_back(new Grid(m_TweakBar, m_baseProgramID));
 	//m_grids[0]->GenerateGrid();
 
 	m_terrain.push_back(new Perlin(256, m_unlitTexturedProgramID, 8.0f, 0.3f));
+	m_terrain[0]->SetTweakBar(m_TweakBar);
 	
+	m_gpuParticleEmitters.push_back(new GPUParticleEmitter("resources/shaders/gpuParticleUpdateRandom.vert"));
+	m_gpuParticleEmitters[0]->Initialise( 1000000, 1.0f, 5.0f, 20.5f, 50.1f, 0.2f, 0.15f, 
+		glm::vec4(1.0f, 0.7f, 0.0f, 1.0f), 	glm::vec4(0.0f, 0.0f, 0.0f, 0.3f),
+		glm::vec4(1.0f, 0.2f, 0.0f, 1.0f), "resources/images/pixel.png", m_TweakBar);
 	
-	//m_gpuParticleEmitters.push_back(new GPUParticleEmitter("resources/shaders/gpuParticleUpdate.vert"));
-	//m_gpuParticleEmitters[0]->Initialise( 100000, 1.1f, 5.0f, 20.5f, 50.1f, 0.005f, 0.0005f, 
-	//	glm::vec4(1.0f, 1.0f, 1.0f, 1), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 
-	//	glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), "resources/images/ptcle.png", m_TweakBar);
-	
+
+
+	m_gpuParticleEmitters.push_back(new GPUParticleEmitter("resources/shaders/gpuParticleUpdateSphere.vert"));
+	m_gpuParticleEmitters[1]->Initialise( 1000000, 1.0f, 3.0f, 20.5f, 50.1f, 0.2f, 0.15f, 
+		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec4(0.8f, 1.0f, 1.0f, 0.3f),
+		 glm::vec4(0.70f, 1.0f, 1.0f, 1.0f), "resources/images/pixel.png", m_TweakBar);
 
 	//m_renderTargets.push_back(new RenderTarget());
 
-	//m_fbxUntexturedObjects.push_back(new FBXObject("./resources/fbx/models/sphere.fbx", m_baseProgramID, m_TweakBar));
+	//m_fbxUntexturedObjects.push_back(new FBXObject("./resources/fbx/models/test.fbx", m_baseProgramID, m_TweakBar, false));
+	//m_fbxUntexturedObjects.push_back(new FBXObject("./resources/fbx/models/final.fbx", m_baseProgramID, m_TweakBar, false));
 	//m_fbxTexturedObjects.push_back(new FBXObject("./resources/fbx/models/soulspear/soulspear.fbx", m_texturedProgramID, m_TweakBar, false));
+	m_fbxTexturedObjects.push_back(new FBXObject("./resources/fbx/models/island/island.fbx", m_texturedProgramID, m_TweakBar, false));
+	m_fbxTexturedObjects.push_back(new FBXObject("./resources/fbx/models/totem/totems.fbx", m_texturedProgramID, m_TweakBar, false));
 	//m_fbxTexturedObjects.push_back(new FBXObject("./resources/fbx/characters/demolition/demolition.fbx", m_animatedProgramID, m_TweakBar, true));
 	//m_fbxTexturedObjects.push_back(new FBXObject("./resources/fbx/characters/enemynormal/enemynormal.fbx", m_animatedProgramID, m_TweakBar, true));
 
 
-	//m_texturedObject.push_back( new Object(m_texturedProgramID, 0, 0, m_TweakBar, "./resources/obj/optimusB0.obj", "./resources/textures/tr/boss.png"));
+	//m_texturedObject.push_back( new Object(m_texturedProgramID, 0, 0, m_TweakBar, "./resources/fbx/models/MarsPlanet/MarsPlanet.obj", "./resources/fbx/models/MarsPlanet/MarsMap_2500x1250.jpg"));
 	//m_texturedObject.push_back( new Object(m_texturedProgramID, "./resources/obj/plane0.obj", "./resources/textures/gun/beretta.png"));
 	//m_texturedObject.push_back( new Object(m_texturedProgramID, 0, 0, m_TweakBar, "./resources/obj/mario.obj", "./resources/textures/mario/marioD.jpg"));
 	//m_texturedObject.push_back( new Object(m_texturedProgramID, 3, 0, m_TweakBar, "./resources/obj/porsche0.obj", "./resources/textures/car/red.BMP"));
-	//m_untexturedObject.push_back( new Object(m_baseProgramID, 0, 0, m_TweakBar, "./resources/obj/mm_low3.obj"));
+	//m_untexturedObject.push_back( new Object(m_baseProgramID, 0, 0, m_TweakBar, "./resources/obj/islandOBJ.obj"));
 	//m_untexturedObject.push_back( new Object(m_baseProgramID, 0, 0, m_TweakBar,"./resources/obj/lounge2.obj"));
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 	glClearColor(0.3f, 0.3f, 0.3f, 1);
@@ -103,6 +106,18 @@ void Shader::Update( float dT )
 	static bool toggleKeyDown = false;
 	static bool toggleGDown = false;
 	static bool toggleRDown = false;
+
+	for (unsigned int i = 0; i < m_terrain.size(); i++)
+	{
+		if (m_terrain[i]->m_seed != m_TweakBar->m_seed)
+		{			
+			m_terrain[i]->m_seed = m_TweakBar->m_seed;
+			float scale = (1.0f / m_terrain[i]->m_dimensions) * 3;
+			int octaves = 6;
+			m_terrain[i]->GeneratePerlinNoise(octaves, scale, m_terrain[i]->m_amplitude, m_terrain[i]->m_persistence);
+		}
+	}
+
 
 	for (unsigned int i = 0; i < m_fbxUntexturedObjects.size(); i++)
 		m_fbxUntexturedObjects[i]->Update(dT);
@@ -134,6 +149,11 @@ void Shader::Update( float dT )
 		for (unsigned int i = 0; i < m_terrain.size(); i++)
 		{
 			m_terrain[i]->ReloadShader(m_unlitTexturedProgramID);
+		}
+
+		for (unsigned int i = 0; i < m_fbxTexturedObjects.size(); i++)
+		{
+			m_fbxTexturedObjects[i]->m_programID = (m_texturedProgramID);
 		}
 
 		toggleRDown = true;
@@ -233,11 +253,20 @@ void Shader::Draw( float dT )
 	for (unsigned int i = 0; i < m_skybox.size(); i++)
 		m_skybox[i]->Draw(m_flyCamera);		
 
+
+
 	for (unsigned int i = 0; i < m_untexturedObject.size(); i++)
-		m_untexturedObject[i]->Draw(dT, m_flyCamera);				
+		m_untexturedObject[i]->Draw(dT, m_flyCamera);			
+
+	
+
+	for (unsigned int i = 0; i < m_terrain.size(); i++)
+		m_terrain[i]->Draw(m_flyCamera);
 	
 	for (unsigned int i = 0; i < m_texturedObject.size(); i++)
 		m_texturedObject[i]->Draw(dT, m_flyCamera);
+
+	
 		
 	for (unsigned int i = 0; i < m_fbxUntexturedObjects.size(); i++)
 		m_fbxUntexturedObjects[i]->Draw(m_flyCamera);
@@ -247,17 +276,13 @@ void Shader::Draw( float dT )
 
 	for (unsigned int i = 0; i < m_grids.size(); i++)
 		m_grids[i]->Draw(m_flyCamera);
-		
-	for (unsigned int i = 0; i < m_terrain.size(); i++)
-		m_terrain[i]->Draw(m_flyCamera);
-
-	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+			
 	
 	for( unsigned int i = 0; i < m_gpuParticleEmitters.size(); i++)
 	{
 		m_gpuParticleEmitters[i]->Draw((float)glfwGetTime(), m_flyCamera->GetWorldTransform(), m_flyCamera->GetProjectionView());
 	}
-
+	
 		
 	//if ( i == 0 )
 	//{
@@ -352,9 +377,9 @@ void Shader::CreateShaders()
 	if (textureSuccess == GL_FALSE) 
 	{
 		int infoLogLength = 0;
-		glGetShaderiv(m_texturedProgramID, GL_INFO_LOG_LENGTH, &infoLogLength);
+		glGetProgramiv(m_texturedProgramID, GL_INFO_LOG_LENGTH, &infoLogLength);
 		char* infoLog = new char[infoLogLength];
-		glGetShaderInfoLog(m_texturedProgramID, infoLogLength, 0, infoLog);
+		glGetProgramInfoLog(m_texturedProgramID, infoLogLength, 0, infoLog);
 		printf("Error: Failed to link shader textured program!\n");
 		printf("%s\n",infoLog);
 		delete[] infoLog;
@@ -382,14 +407,14 @@ void Shader::CreateShaders()
 	if (baseSuccess == GL_FALSE) 
 	{
 		int infoLogLength = 0;
-		glGetShaderiv(m_baseProgramID, GL_INFO_LOG_LENGTH, &infoLogLength);
+		glGetProgramiv(m_baseProgramID, GL_INFO_LOG_LENGTH, &infoLogLength);
 		char* infoLog = new char[infoLogLength];
-		glGetShaderInfoLog(m_baseProgramID, infoLogLength, 0, infoLog);
+		glGetProgramInfoLog(m_baseProgramID, infoLogLength, 0, infoLog);
 		printf("Error: Failed to link shader base program!\n");
 		printf("%s\n",infoLog);
 		delete[] infoLog;
 	}
-	
+	 
 	glDeleteShader(fsBase);
 	glDeleteShader(vsBase);
 	
@@ -408,28 +433,6 @@ void Shader::CreateShaders()
 	glLinkProgram(m_unlitTexturedProgramID);
 	glGetProgramiv(m_unlitTexturedProgramID, GL_LINK_STATUS, &unlitSuccess);
 	
-	if (unlitSuccess == GL_FALSE) 
-	{
-		int infoLogLength = 0;
-		glGetProgramiv(m_unlitTexturedProgramID, GL_INFO_LOG_LENGTH, &infoLogLength);
-		char* infoLog = new char[infoLogLength];
-		glGetProgramInfoLog(m_unlitTexturedProgramID, infoLogLength, 0, infoLog);
-		printf("Error: Failed to link shader unlit program!\n");
-		printf("%s\n",infoLog);
-		delete[] infoLog;
-	}
-
-	if (unlitSuccess == GL_FALSE) 
-	{
-		int infoLogLength = 0;
-		glGetProgramiv(m_unlitTexturedProgramID, GL_INFO_LOG_LENGTH, &infoLogLength);
-		char* infoLog = new char[infoLogLength];
-		glGetProgramInfoLog(m_unlitTexturedProgramID, infoLogLength, 0, infoLog);
-		printf("Error: Failed to link shader unlit program!\n");
-		printf("%s\n",infoLog);
-		delete[] infoLog;
-	}
-
 	if (unlitSuccess == GL_FALSE) 
 	{
 		int infoLogLength = 0;
