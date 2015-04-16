@@ -8,13 +8,13 @@ Perlin::Perlin(unsigned int dimensions, unsigned int program, float amplitude, f
 	m_programID = program;
 	m_amplitude = amplitude;
 	m_persistence = persistence;
+	m_octaves = 6;
 
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 
 	float scale = (1.0f / m_dimensions) * 3;
-	unsigned int octaves = 6;
 	
-	GeneratePerlinNoise(octaves, scale, m_amplitude, m_persistence);
+	GeneratePerlinNoise(m_octaves, scale, m_amplitude, m_persistence);
 	GenerateGrid();
 
 	m_water = LoadTexture("resources/textures/procedural/water.jpg");
@@ -22,10 +22,10 @@ Perlin::Perlin(unsigned int dimensions, unsigned int program, float amplitude, f
 	m_grass = LoadTexture("resources/textures/procedural/grass.jpg");
 	m_snow = LoadTexture("resources/textures/procedural/snow.jpg");	
 
-	float HI = 32000;
+	float HI = 4294967294 / 2;
 	float LO = 0;	
-	unsigned int seed = LO + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(HI-LO)));
-	m_seed = seed;
+	float seed = (LO + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(HI-LO))));
+	m_seed = (unsigned int)seed;
 }
 
 void Perlin::SetTweakBar(TweakBar * tweaks)
@@ -207,7 +207,7 @@ void Perlin::Draw(FlyCamera *camera)
 	glUniform1i(location, 4);
 	
 	location = glGetUniformLocation(m_programID, "dimensions");
-	glUniform1f(location, m_dimensions);
+	glUniform1f(location, (GLfloat)m_dimensions);
 
 
 	

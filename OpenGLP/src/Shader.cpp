@@ -44,7 +44,7 @@ Shader::Shader( GLFWwindow *window )
 	m_window = window;
 	m_flyCamera = new FlyCamera();
 	m_flyCamera->SetInputWindow(window);
-	m_flyCamera->SetLookAt(vec3(0,20,10), vec3(0), vec3(0,1,0));
+	m_flyCamera->SetLookAt(vec3(0,20,-10), vec3(0), vec3(0,1,0));
 	m_flyCamera->SetPerspective( 3.14159f / 4.0f, 16.f/9.f, 0.1f, 4500.f ); 
 	m_flyCamera->SetFlySpeed(150.0f);
 	m_flyCamera->SetRotSpeed(0.1f);
@@ -109,12 +109,13 @@ void Shader::Update( float dT )
 
 	for (unsigned int i = 0; i < m_terrain.size(); i++)
 	{
-		if (m_terrain[i]->m_seed != m_TweakBar->m_seed)
+		if (m_terrain[i]->m_seed != m_TweakBar->m_seed || m_terrain[i]->m_amplitude != m_TweakBar->m_amplitude || m_terrain[i]->m_octaves != m_TweakBar->m_octaves )
 		{			
 			m_terrain[i]->m_seed = m_TweakBar->m_seed;
+			m_terrain[i]->m_amplitude = m_TweakBar->m_amplitude;
+			m_terrain[i]->m_octaves = m_TweakBar->m_octaves;
 			float scale = (1.0f / m_terrain[i]->m_dimensions) * 3;
-			int octaves = 6;
-			m_terrain[i]->GeneratePerlinNoise(octaves, scale, m_terrain[i]->m_amplitude, m_terrain[i]->m_persistence);
+			m_terrain[i]->GeneratePerlinNoise(m_terrain[i]->m_octaves, scale, m_terrain[i]->m_amplitude, m_terrain[i]->m_persistence);
 		}
 	}
 

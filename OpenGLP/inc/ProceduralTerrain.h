@@ -45,7 +45,7 @@ public:
 	void GenerateGrid();
 
 	unsigned int m_dimensions;
-	float m_amplitude, m_persistence;
+	float m_amplitude, m_persistence, m_octaves;
 	
 	unsigned int m_seed;
 

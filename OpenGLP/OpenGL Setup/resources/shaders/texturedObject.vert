@@ -12,10 +12,10 @@ uniform mat4 global;
 								
 void main() 
 { 
-	Position.y += 100;
-	vPosition = Position;				
+	vec4 pos = Position;
+	pos.y += 100;
+	vPosition = pos;				
 	vNormal = Normal;								
-	vTexCoord = TexCoord;							
-	//vec4 pos = vec4(12, 10, 12, 0);
-	gl_Position = ProjectionView * global * Position; 
+	vTexCoord = TexCoord;				
+	gl_Position = ProjectionView * global * pos; 
 };

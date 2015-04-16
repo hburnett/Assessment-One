@@ -24,14 +24,14 @@ Solar::~Solar()
 
 void Solar::Update( float dT )
 {	
-	m_solarRotation[0] += 0.05 / 1;
-	m_solarRotation[1] += 0.05 / 2.557f;
-	m_solarRotation[2] += 0.05 / 4.1477f;
-	m_solarRotation[3] += 0.05 / 7.8068f;
-	m_solarRotation[4] += 0.05 / 49.227f;
-	m_solarRotation[5] += 0.05 / 122.2727f;
-	m_solarRotation[6] += 0.05 / 348.69f;
-	m_solarRotation[7] += 0.05 / 684.02555f;
+	m_solarRotation[0] += 0.05f / 1.0f;
+	m_solarRotation[1] += 0.05f / 2.557f;
+	m_solarRotation[2] += 0.05f / 4.1477f;
+	m_solarRotation[3] += 0.05f / 7.8068f;
+	m_solarRotation[4] += 0.05f / 49.227f;
+	m_solarRotation[5] += 0.05f / 122.2727f;
+	m_solarRotation[6] += 0.05f / 348.69f;
+	m_solarRotation[7] += 0.05f / 684.02555f;
 	
 }
 

@@ -61,6 +61,8 @@ public:
 	float m_specPower;
 
 	unsigned int m_seed;
+	unsigned int m_amplitude;
+	unsigned int m_octaves;
 
 
 private:
