@@ -13,19 +13,22 @@ Perlin::Perlin(unsigned int dimensions, unsigned int program, float amplitude, f
 	srand((unsigned int)time(NULL));
 
 	float scale = (1.0f / m_dimensions) * 3;
-	
+
+
+	float HI = 4294967294 / 2;
+	float LO = 0;
+	float seed = (LO + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (HI - LO))));
+	m_seed = (unsigned int)seed;
+
 	GeneratePerlinNoise(m_octaves, scale, m_amplitude, m_persistence);
-	GenerateGrid();
+	GeneratePerlinNoise(m_octaves, scale, m_amplitude, m_persistence);
+	//GenerateGrid();
 
 	m_water = LoadTexture("resources/textures/procedural/water.jpg");
 	m_sand = LoadTexture("resources/textures/procedural/sand.jpg");
 	m_grass = LoadTexture("resources/textures/procedural/grass.jpg");
 	m_snow = LoadTexture("resources/textures/procedural/snow.jpg");	
 
-	float HI = 4294967294 / 2;
-	float LO = 0;	
-	float seed = (LO + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(HI-LO))));
-	m_seed = (unsigned int)seed;
 }
 
 void Perlin::SetTweakBar(TweakBar * tweaks)
@@ -36,74 +39,74 @@ void Perlin::SetTweakBar(TweakBar * tweaks)
 
 void Perlin::GenerateGrid() 
 {
-	unsigned int rows = m_dimensions;
-	unsigned int cols = m_dimensions;
-
-
-	aoVertices = new ProceduralVertex[ rows * cols ];
-	
-	for ( unsigned int r = 0 ; r < rows ; ++r ) 
-	{
-		for ( unsigned int c = 0 ; c < cols; ++c ) 
-		{
-			aoVertices[ r * cols + c ].position = glm::vec4((float)c, 0, (float)r, 1);
-			// x % 2 = odd
-
-			// colour
-			aoVertices[ r * cols + c ].texCoords = glm::vec2((float)c / cols, (float)r / rows);
-			aoVertices[ r * cols + c ].normal = glm::vec4(1);
-		}
-	}
-	
-
-	// defining index count based off quad count (2 triangles per quad)
-	auiIndices = new unsigned int[ (rows - 1) * (cols - 1) * 6 ];
-	unsigned int index = 0;
-	for ( unsigned int r = 0 ; r < (rows - 1) ; ++r ) 
-	{
-		for ( unsigned int c = 0 ; c < (cols - 1); ++c ) 
-		{
-			// triangle 1
-			auiIndices[ index++ ] = r * cols + c;
-			auiIndices[ index++ ] = (r + 1) * cols + c;
-			auiIndices[ index++ ] = (r + 1) * cols + (c + 1);
-			// triangle 2
-			auiIndices[ index++ ] = r * cols + c;
-			auiIndices[ index++ ] = (r + 1) * cols + (c + 1);
-			auiIndices[ index++ ] = r * cols + (c + 1);
-		}
-	}
-
-	m_indexCount = index;
-	
-	// Create VAO, VBO and IBO
-	glGenVertexArrays(1, &m_VAO);
-	glGenBuffers(1, &m_VBO);
-	glGenBuffers(1, &m_IBO);
-
-	// Bind buffers
-	glBindVertexArray( m_VAO );
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
-
-	// send data to the buffers	
-	glBufferData(GL_ARRAY_BUFFER, (rows * cols) * sizeof(ProceduralVertex), aoVertices, GL_STATIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexCount * sizeof(unsigned int), auiIndices, GL_STATIC_DRAW);
-	
-	// describe how the vertices are setup so they can be sent to the shader
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(ProceduralVertex), 0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ProceduralVertex), (void*)(sizeof(glm::vec4)));
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ProceduralVertex), (void*)((sizeof(glm::vec4)) + (sizeof(glm::vec2))));
-
-	// m_VAO hold all our ARRAY_BUFFER and ARRAY_ELEMENT_BUFFER settings
-	// so just rebind it later before using glDrawElements
-	glBindVertexArray(0);
-		
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+	//unsigned int rows = m_dimensions;
+	//unsigned int cols = m_dimensions;
+	//
+	//
+	//aoVertices = new ProceduralVertex[rows * cols];
+	//
+	//for (unsigned int r = 0; r < rows; ++r)
+	//{
+	//	for (unsigned int c = 0; c < cols; ++c)
+	//	{
+	//		aoVertices[r * cols + c].position = glm::vec4((float)c, 0, (float)r, 1);
+	//		// x % 2 = odd
+	//
+	//		// colour
+	//		aoVertices[r * cols + c].texCoords = glm::vec2((float)c / cols, (float)r / rows);
+	//		aoVertices[r * cols + c].normal = glm::vec4(1);
+	//	}
+	//}
+	//
+	//
+	//// defining index count based off quad count (2 triangles per quad)
+	//auiIndices = new unsigned int[(rows - 1) * (cols - 1) * 6];
+	//unsigned int index = 0;
+	//for (unsigned int r = 0; r < (rows - 1); ++r)
+	//{
+	//	for (unsigned int c = 0; c < (cols - 1); ++c)
+	//	{
+	//		// triangle 1
+	//		auiIndices[index++] = r * cols + c;
+	//		auiIndices[index++] = (r + 1) * cols + c;
+	//		auiIndices[index++] = (r + 1) * cols + (c + 1);
+	//		// triangle 2
+	//		auiIndices[index++] = r * cols + c;
+	//		auiIndices[index++] = (r + 1) * cols + (c + 1);
+	//		auiIndices[index++] = r * cols + (c + 1);
+	//	}
+	//}
+	//
+	//m_indexCount = index;
+	//
+	//// Create VAO, VBO and IBO
+	//glGenVertexArrays(1, &m_VAO);
+	//glGenBuffers(1, &m_VBO);
+	//glGenBuffers(1, &m_IBO);
+	//
+	//// Bind buffers
+	//glBindVertexArray(m_VAO);
+	//glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+	//
+	//// send data to the buffers	
+	//glBufferData(GL_ARRAY_BUFFER, (rows * cols) * sizeof(ProceduralVertex), aoVertices, GL_STATIC_DRAW);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexCount * sizeof(unsigned int), auiIndices, GL_STATIC_DRAW);
+	//
+	//// describe how the vertices are setup so they can be sent to the shader
+	//glEnableVertexAttribArray(0);
+	//glEnableVertexAttribArray(1);
+	//glEnableVertexAttribArray(2);
+	//glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(ProceduralVertex), 0);
+	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ProceduralVertex), (void*)(sizeof(glm::vec4)));
+	//glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ProceduralVertex), (void*)((sizeof(glm::vec4)) + (sizeof(glm::vec2))));
+	//
+	//// m_VAO hold all our ARRAY_BUFFER and ARRAY_ELEMENT_BUFFER settings
+	//// so just rebind it later before using glDrawElements
+	//glBindVertexArray(0);
+	//
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
@@ -151,6 +154,87 @@ void Perlin::GeneratePerlinNoise(int octaves, float scale, float ampl, float per
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	unsigned int rows = m_dimensions;
+	unsigned int cols = m_dimensions;
+
+
+	aoVertices = new ProceduralVertex[rows * cols];
+
+	for (unsigned int r = 0; r < rows; ++r)
+	{
+		for (unsigned int c = 0; c < cols; ++c)
+		{
+			aoVertices[r * cols + c].position = glm::vec4((float)c, perlin_data[r * cols + c] * 5, (float)r, 1);
+			// x % 2 = odd
+
+			// colour
+			aoVertices[r * cols + c].texCoords = glm::vec2((float)c / cols, (float)r / rows);
+			aoVertices[r * cols + c].normal = glm::vec4(1);
+		}
+	}
+
+	for (unsigned int i = 0; i < m_indexCount; i += 3)
+	{
+		GLushort ia = auiIndices[i];
+		GLushort ib = auiIndices[i+1];
+		GLushort ic = auiIndices[i+2];
+		glm::vec3 normal = glm::normalize(glm::cross(
+			glm::vec3(aoVertices[ib].position) - glm::vec3(aoVertices[ia].position),
+			glm::vec3(aoVertices[ic].position) - glm::vec3(aoVertices[ia].position)
+			));
+		aoVertices[ia].normal = aoVertices[ib].normal = aoVertices[ic].normal = glm::vec4(normal, 1);
+	}
+
+
+	// defining index count based off quad count (2 triangles per quad)
+	auiIndices = new unsigned int[(rows - 1) * (cols - 1) * 6];
+	unsigned int index = 0;
+	for (unsigned int r = 0; r < (rows - 1); ++r)
+	{
+		for (unsigned int c = 0; c < (cols - 1); ++c)
+		{
+			// triangle 1
+			auiIndices[index++] = r * cols + c;
+			auiIndices[index++] = (r + 1) * cols + c;
+			auiIndices[index++] = (r + 1) * cols + (c + 1);
+			// triangle 2
+			auiIndices[index++] = r * cols + c;
+			auiIndices[index++] = (r + 1) * cols + (c + 1);
+			auiIndices[index++] = r * cols + (c + 1);
+		}
+	}
+
+	m_indexCount = index;
+
+	// Create VAO, VBO and IBO
+	glGenVertexArrays(1, &m_VAO);
+	glGenBuffers(1, &m_VBO);
+	glGenBuffers(1, &m_IBO);
+
+	// Bind buffers
+	glBindVertexArray(m_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+
+	// send data to the buffers	
+	glBufferData(GL_ARRAY_BUFFER, (rows * cols) * sizeof(ProceduralVertex), aoVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexCount * sizeof(unsigned int), auiIndices, GL_STATIC_DRAW);
+
+	// describe how the vertices are setup so they can be sent to the shader
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(ProceduralVertex), 0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ProceduralVertex), (void*)(sizeof(glm::vec4)));
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ProceduralVertex), (void*)((sizeof(glm::vec4)) + (sizeof(glm::vec2))));
+
+	// m_VAO hold all our ARRAY_BUFFER and ARRAY_ELEMENT_BUFFER settings
+	// so just rebind it later before using glDrawElements
+	glBindVertexArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 

@@ -28,7 +28,7 @@ TweakBar::TweakBar( GLFWwindow *window )
 	m_specPower = 1.f;
 
 	m_seed = 0;
-	m_amplitude = 8;
+	m_amplitude = 4;
 	m_octaves = 6;
 
 	TwAddVarRW(m_bar, "Clear colour", TW_TYPE_COLOR4F, &m_clearColour[0], "");

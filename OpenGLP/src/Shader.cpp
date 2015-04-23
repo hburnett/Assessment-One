@@ -59,7 +59,7 @@ Shader::Shader( GLFWwindow *window )
 	//m_grids.push_back(new Grid(m_TweakBar, m_baseProgramID));
 	//m_grids[0]->GenerateGrid();
 
-	m_terrain.push_back(new Perlin(256, m_unlitTexturedProgramID, 8.0f, 0.3f));
+	m_terrain.push_back(new Perlin(256, m_unlitTexturedProgramID, 4.0f, 0.3f));
 	m_terrain[0]->SetTweakBar(m_TweakBar);
 	
 	m_gpuParticleEmitters.push_back(new GPUParticleEmitter("resources/shaders/gpuParticleUpdateRandom.vert"));
